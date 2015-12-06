@@ -1,0 +1,10 @@
+{
+  "run_list": [
+    "recipe[dstat]",
+    "recipe[log]",
+    "recipe[ldap]"
+  ],
+  "automatic": {
+    "ipaddress": "chef_test"
+  }
+}
