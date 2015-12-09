@@ -1,17 +1,29 @@
+# The distinguished name of the search base.
+base dc=bm-sms,dc=co,dc=jp
 
-# LDAP Defaults
-#
+# Search timelimit
+#timelimit 30
+timelimit <%= node['system-base']['ldap']['timelimit'] %>
 
-# See ldap.conf(5) for details
-# This file should be world readable but not world writable.
+# Bind/connect timelimit
+#bind_timelimit 30
+bind_timelimit <%= node['system-base']['ldap']['bind_timelimit'] %>
 
-#BASE   dc=example,dc=com
-#URI    ldap://ldap.example.com ldap://ldap-master.example.com:666
+# Idle timelimit; client will close connections
+# (nss_ldap only) if the server has not been contacted
+# for the number of seconds specified below.
+#idle_timelimit 3600
+idle_timelimit <%= node['system-base']['ldap']['idle_timelimit'] %>
 
-#SIZELIMIT      12
-#SIZELIMIT      <%= node[:ldap][:sizelimit] %>
-#TIMELIMIT      15
-#DEREF          never
+# Just assume that there are no supplemental groups for these named users
+<%= node['system-base']['ldap']['no_supplemental'] %>
 
-#TLS_CACERTDIR   /etc/openldap/certs
-TLS_CACERTDIR   <%= node[:ldap][:cacertdir] %>
+# SASL mechanism for PAM authentication - use is experimental
+# at present and does not support password policy control
+#pam_sasl_mech DIGEST-MD5
+#pam_check_host_attr yes
+pam_filter &<%= node['system-base']['ldap']['objectclass'] %>(|<% @ldap_descriptions.each do |desc| %>(description=<%= desc %>)<% end %><% @ldap_descriptions_option.each do |desc| %><% break if desc == "" %>(description=<%= desc %>)<% end %><%= @ldap_descriptions_host %>)
+uri ldap://<%= node['system-base']['ldap']['server'] %>/
+ssl no
+tls_cacertdir /etc/openldap/cacerts
+pam_password md5
